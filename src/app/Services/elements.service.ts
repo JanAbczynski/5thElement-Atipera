@@ -15,7 +15,7 @@ export class ElementsService {
   
   public GetElementData(){
     // Here should be request to get real data from server. For example:
-    // return this.http.get<PeriodicElement[]>("/GetElementData");   
+    // return new BehaviorSubject<any>(this.http.get<PeriodicElement[]>("/GetElementData"));   
     return new BehaviorSubject<any>(this.mockData);
   }
 }
