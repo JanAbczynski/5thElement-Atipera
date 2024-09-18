@@ -62,20 +62,12 @@ export class ElementsComponent implements OnInit, AfterViewInit{
   }
   
   private getData(): void{
-     this.elementsService.GetElementData()    
-     .subscribe({
-       next: ((response: PeriodicElement[]) => {    
-         this.addId(response);  
-         tableData = response;
-         this.dataSource.data = response;
-         console.log( this.dataSource.data)
-       }),
-       error: ((value: Object) => {
-        console.log("Data error")
-         })
-       }
-     ) 
-   }
+    this.dataSource.data = this.elementsService.GetElementData()
+    .getValue()
+
+    // addId is used to add guarantee unique idNumber. In Task is not clear if field 'position' is unique and should be unmutable.
+    this.addId(this.dataSource.data);  
+  }  
 
    private addId(response: PeriodicElement[]): void{
     for (let i = 0; i < response.length; i++) {
