@@ -16,6 +16,8 @@ import { EditElementComponent } from './Component/edit-element/edit-element.comp
 import { provideHttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { StoreModule } from '@ngrx/store';
+import { elementReducer } from './State/element.reducer';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     MatCardModule,
     MatDialogModule,
     MatSortModule,
-    MatIconModule
+    MatIconModule,
+    StoreModule.forRoot({elements: elementReducer})
   ],
   providers: [
     provideClientHydration(),

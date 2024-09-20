@@ -1,6 +1,5 @@
 export class PeriodicElement {
 
-    public id?: Id; //It's object to prevent Angular Material filter by id number 
     public position?: number;
     public name?: string;
     public weight?: number;
@@ -13,13 +12,3 @@ export class PeriodicElement {
     }
 }
 
-export class Id {
-
-    public number?: string;
-
-    constructor(
-
-    ){
-
-    }
-}

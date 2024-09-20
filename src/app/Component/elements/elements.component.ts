@@ -1,10 +1,12 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { ElementsService } from '../../Services/elements.service';
+import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { PeriodicElement } from '../../Models/PeriodicElement';
 import { MatSort } from '@angular/material/sort';
 import { EditElementComponent } from '../edit-element/edit-element.component';
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { ElementState } from '../../State/element.state';
+import { PeriodicElement } from '../../Models/PeriodicElement';
 
 let tableData: PeriodicElement[] = [];
 @Component({
@@ -12,25 +14,41 @@ let tableData: PeriodicElement[] = [];
   templateUrl: './elements.component.html',
   styleUrl: './elements.component.scss'
 })
-export class ElementsComponent implements OnInit, AfterViewInit{
+export class ElementsComponent implements OnInit, AfterViewInit, OnDestroy{
 
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
   dataSource = new MatTableDataSource(tableData);
   filterCounter: number[] = [0];
   @ViewChild(MatSort) sort !:MatSort;
+  private sub: any;
+
+  elements$: Observable<{elements: PeriodicElement[]}> = new Observable<{elements: PeriodicElement[]}>();
   
-  constructor(public elementsService: ElementsService, public dialog: MatDialog) {
+  constructor(public dialog: MatDialog,
+    private store: Store<{elements: ElementState}>
+  ) {
     this.dataSource.sort = this.sort;
    }
 
    public ngOnInit(): void {
-     this.getData();
+    this.initData();
    }
 
    public ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
   }
 
+  public ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
+   private initData(){
+   this.elements$ = this.store.select('elements');
+   this.sub = this.elements$.subscribe((el) => {
+     this.dataSource.data = el.elements;
+    }) 
+  }
+  
   protected filter(e: any): void {
     let max = this.filterCounter[this.filterCounter.length - 1] + 1; 
     this.filterCounter.push(max);
@@ -51,29 +69,6 @@ export class ElementsComponent implements OnInit, AfterViewInit{
       height: '600px',
       width: '400px',
     });
-
     dialogBox.componentInstance.element = element;
-    dialogBox.afterClosed().subscribe(result =>{
-      if(result){
-        console.log("Element updated");
-      }else{
-        console.log("Updating canceled");}
-    })
-  }
-  
-  private getData(): void{
-    this.dataSource.data = this.elementsService.GetElementData()
-    .getValue()
-
-    // addId is used to add guarantee unique idNumber. In Task is not clear if field 'position' is unique and should be unmutable.
-    this.addId(this.dataSource.data);  
-  }  
-
-   private addId(response: PeriodicElement[]): void{
-    for (let i = 0; i < response.length; i++) {
-      if(response[i].id == undefined || response[i].id!.number == null){
-        response[i].id ={number: crypto.randomUUID()};
-      }
-    }
   }
 }
