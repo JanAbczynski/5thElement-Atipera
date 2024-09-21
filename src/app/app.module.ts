@@ -13,7 +13,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatIconModule} from '@angular/material/icon';
 import { EditElementComponent } from './Component/edit-element/edit-element.component';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StoreModule } from '@ngrx/store';
@@ -43,7 +43,7 @@ import { elementReducer } from './State/element.reducer';
   providers: [
     provideClientHydration(),
     provideAnimationsAsync(),
-    provideHttpClient()
+    provideHttpClient(withFetch())
   ],
   bootstrap: [AppComponent]
 })

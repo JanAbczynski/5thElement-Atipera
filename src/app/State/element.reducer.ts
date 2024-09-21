@@ -1,17 +1,23 @@
 import { createReducer, on } from "@ngrx/store";
 import { initialState } from "./element.state";
-import { update } from "./element.action";
+import { insert, update } from "./element.action";
 
 const _elementReducer = createReducer(initialState, 
-    on(update, (state, { elements }) => {
+  on(update, (state, { elements }) => {
 
-        const updatedElementData = state.elements.map((el) => 
-            el.position == elements.position ? { ...el, ...elements } : el
-          );
-    
+      const updatedElementData = state.elements.map((el) => 
+          el.position == elements.position ? { ...el, ...elements } : el
+        );
+  
+        return {
+          ...state,
+          elements: updatedElementData // zaktualizowana tablica z nowym elementem
+        };
+    }),
+    on(insert, (state, { elements }) => {
           return {
             ...state,
-            elements: updatedElementData // zaktualizowana tablica z nowym elementem
+            elements: [...elements]
           };
       })
 ) ;

@@ -1,12 +1,14 @@
-import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy, ElementRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { EditElementComponent } from '../edit-element/edit-element.component';
-import { Observable } from 'rxjs';
+import { debounceTime, distinctUntilChanged, fromEvent, Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { ElementState } from '../../State/element.state';
 import { PeriodicElement } from '../../Models/PeriodicElement';
+import { ElementsService } from '../../Services/elements.service';
+import { insert } from '../../State/element.action';
 
 let tableData: PeriodicElement[] = [];
 @Component({
@@ -16,59 +18,73 @@ let tableData: PeriodicElement[] = [];
 })
 export class ElementsComponent implements OnInit, AfterViewInit, OnDestroy{
 
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = new MatTableDataSource(tableData);
-  filterCounter: number[] = [0];
+  protected displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+  protected dataSource = new MatTableDataSource(tableData);
+  private dataSub: Subscription = new Subscription;
+  private filterDelay: number = 2000;
+  private filterSub: Subscription = new Subscription  // Subscription for filtering
   @ViewChild(MatSort) sort !:MatSort;
-  private sub: any;
+  @ViewChild('filterInput', { static: true }) filterInput!: ElementRef;  // Reference to input field
+
 
   elements$: Observable<{elements: PeriodicElement[]}> = new Observable<{elements: PeriodicElement[]}>();
   
-  constructor(public dialog: MatDialog,
+  constructor(
+    public elementsService: ElementsService,
+    public dialog: MatDialog,
     private store: Store<{elements: ElementState}>
-  ) {
-    this.dataSource.sort = this.sort;
-   }
+  ) {}
 
    public ngOnInit(): void {
+    this.getData();
     this.initData();
+    this.setupFilter();
    }
 
-   public ngAfterViewInit(): void {
+  public ngAfterViewInit(): void {
+    if (this.sort) {
     this.dataSource.sort = this.sort;
+    }
   }
 
-  public ngOnDestroy(): void {
-    this.sub.unsubscribe();
+  public ngOnDestroy(): void {  
+    if (this.dataSub) {
+      this.dataSub.unsubscribe();
+    }
+    if (this.filterSub) {
+      this.filterSub.unsubscribe();
+    }
   }
 
-   private initData(){
-   this.elements$ = this.store.select('elements');
-   this.sub = this.elements$.subscribe((el) => {
+   private initData(): void{
+   this.dataSub = this.store.select('elements')
+   .subscribe((el) => {
      this.dataSource.data = el.elements;
     }) 
   }
+
+  private getData(): void{
+    this.store.dispatch(insert({elements: this.elementsService.GetElementData()
+      .getValue()}));
+  }  
   
-  protected filter(e: any): void {
-    let max = this.filterCounter[this.filterCounter.length - 1] + 1; 
-    this.filterCounter.push(max);
-    this.applyFilter(max, e);
+  private setupFilter(): void {
+    this.filterSub = fromEvent(this.filterInput.nativeElement, 'input')
+      .pipe(
+        debounceTime(this.filterDelay), 
+        distinctUntilChanged()
+      )
+      .subscribe((event: any) => {
+        const filterValue = event.target.value.trim().toLowerCase();
+        this.dataSource.filter = filterValue;
+      });
   }
 
-  private applyFilter(max:number, e:any): void{
-    setTimeout(()=>{   
-      if(max == this.filterCounter[this.filterCounter.length - 1]){
-        this.dataSource.filter=e.target.value;
-        this.filterCounter = [0];
-      }    
-    },2000)
-  }
-
-  protected edit(element: any): void {
+  protected edit(element: PeriodicElement): void {
     let dialogBox = this.dialog.open(EditElementComponent, {
+      data: element,
       height: '600px',
       width: '400px',
     });
-    dialogBox.componentInstance.element = element;
   }
 }

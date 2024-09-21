@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { ElementState } from '../../State/element.state';
 import { update } from '../../State/element.action';
@@ -12,12 +12,9 @@ import { PeriodicElement } from '../../Models/PeriodicElement';
   styleUrl: './edit-element.component.scss'
 })
 export class EditElementComponent  implements OnInit {
-
-    
-  element: PeriodicElement = {}; 
-  newElement: PeriodicElement = {}; 
-  data: any = {};
-  public elementForm: FormGroup = new FormGroup({
+ 
+  private newElement: PeriodicElement = {}; 
+  protected elementForm: FormGroup = new FormGroup({
     position: new FormControl({value: '', disabled: true}, [
         Validators.required,
     ]),
@@ -32,7 +29,9 @@ export class EditElementComponent  implements OnInit {
     ])
 });
 
-constructor(private dialogRef: MatDialogRef<EditElementComponent>,
+constructor(
+  @Inject(MAT_DIALOG_DATA) public element: PeriodicElement,
+  private dialogRef: MatDialogRef<EditElementComponent>,
   private store: Store<{counter: ElementState}>
 ) { }
 
