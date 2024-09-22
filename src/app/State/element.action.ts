@@ -2,10 +2,10 @@ import {createAction, props} from '@ngrx/store'
 import { PeriodicElement } from '../Models/PeriodicElement';
 
 export const update = createAction(
-  'update',
-  props<{ elements: PeriodicElement }>()
+  '[Elements] Update Element',
+  props<{ element: PeriodicElement }>()
 );
 export const insert = createAction(
-  'insert',
+  '[Elements] Insert Element',
   props<{ elements: PeriodicElement[] }>()
 );

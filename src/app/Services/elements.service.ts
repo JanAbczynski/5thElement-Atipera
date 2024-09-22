@@ -14,7 +14,7 @@ export class ElementsService {
   //http: HttpClient will be used in case with real HTTP call
   constructor(private http: HttpClient) { }
 
-  public GetElementData(){
+  public getElementData(){
     // Here should be request to get real data from server. For example:
     // return new BehaviorSubject<any>(this.http.get<PeriodicElement[]>("/GetElementData"));   
 

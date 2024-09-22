@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { ElementState } from '../../State/element.state';
 import { update } from '../../State/element.action';
 import { PeriodicElement } from '../../Models/PeriodicElement';
+import { symlink } from 'fs';
 
 @Component({
   selector: 'app-edit-element',
@@ -13,7 +14,7 @@ import { PeriodicElement } from '../../Models/PeriodicElement';
 })
 export class EditElementComponent  implements OnInit {
  
-  private newElement: PeriodicElement = {}; 
+  private newElement: PeriodicElement = {position: 0, name: '', weight: 0, symbol: ''}; 
   protected elementForm: FormGroup = new FormGroup({
     position: new FormControl({value: '', disabled: true}, [
         Validators.required,
@@ -41,27 +42,20 @@ public ngOnInit(): void {
 
 private initForm(): void{
 
-  this.elementForm = new FormGroup({
-    position: new FormControl({value: this.element.position, disabled: true}),
-    name: new FormControl(this.element.name, [
-        Validators.required,
-    ]),
-    weight: new FormControl(this.element.weight, [
-        Validators.required,
-    ]),
-    symbol: new FormControl(this.element.symbol, [
-        Validators.required,
-    ])
+  this.elementForm.patchValue({
+    position: this.element.position,
+    name: this.element.name,
+    weight: this.element.weight,
+    symbol: this.element.symbol
   });
 }
 
 protected OnSubmit(): void{
-  this.newElement.position = this.element.position;  // if user try to change this value which is used as unique Id
-  this.newElement.name = this.elementForm.controls["name"].value;  
-  this.newElement.weight = this.elementForm.controls["weight"].value;  
-  this.newElement.symbol = this.elementForm.controls["symbol"].value;  
 
-  this.store.dispatch(update({elements: this.newElement}));
+  this.newElement = { ...this.element, ...this.elementForm.getRawValue() };
+  this.newElement.position = this.element.position;  // if user try to force change this value which is used as unique Id
+
+  this.store.dispatch(update({element: this.newElement}));
   this.dialogRef.close(true)
 }
 

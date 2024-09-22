@@ -3,10 +3,9 @@ import { initialState } from "./element.state";
 import { insert, update } from "./element.action";
 
 const _elementReducer = createReducer(initialState, 
-  on(update, (state, { elements }) => {
-
+  on(update, (state, { element }) => {
       const updatedElementData = state.elements.map((el) => 
-          el.position == elements.position ? { ...el, ...elements } : el
+          el.position == element.position ? { ...el, ...element } : el
         );
   
         return {

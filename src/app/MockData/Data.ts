@@ -1,4 +1,4 @@
-import { PeriodicElement } from "../../../../5thElement-Atipera — kopia/src/app/Models/PeriodicElement";
+import { PeriodicElement } from "../Models/PeriodicElement";
 
 
   export const ELEMENT_DATA: PeriodicElement[] = [

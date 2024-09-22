@@ -1,14 +1,8 @@
-export class PeriodicElement {
+export interface  PeriodicElement {
 
-    public position?: number;
-    public name?: string;
-    public weight?: number;
-    public symbol?: string;
-
-    constructor(
-
-    ){
-
-    }
+     position: number;
+     name: string;
+     weight: number;
+     symbol: string;
 }
 
